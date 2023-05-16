@@ -20,6 +20,7 @@ class Extract1DBoxStep(Step):
     draw_aperture = boolean(default=False)  # draw trace fits and position.
     draw_mask = boolean(default=False)  # draw trace and dq flags mask.
     draw_spectra = boolean(default=False)  # draw extracted spectra.
+    calc_noise_pixel = boolean(default=False)  # calculate noise pixels.
     """
 
     def process(self, input, wavelength_map):
@@ -58,10 +59,18 @@ class Extract1DBoxStep(Step):
             spec_box_errs = np.ma.getdata(np.sqrt(np.ma.sum(np.ma.array(
                 input_model.err**2, mask=~trace_mask_cube), axis=2)))
 
+            # Noise pixel calculation.
+            fluxes = np.ma.sum(np.ma.array(input_model.data, mask=~trace_mask_cube), axis=2)
+            sum_of_intensities = np.ma.sum(fluxes)
+            sum_of_intensities_sq = np.ma.sum(fluxes ** 2)
+
+            noise_pixel = np.ma.getdata(sum_of_intensities ** 2 / sum_of_intensities_sq)
+
         if self.draw_spectra:
             self._draw_extracted_spectra(wavelengths, spec_box)
 
-        return wavelengths, spec_box, spec_box_errs, trace_sigmas
+        return wavelengths, spec_box, spec_box_errs, trace_sigmas, noise_pixel
+
 
     def _define_spectral_trace_region(self, data_cube):
         if self.trace_position == "constant":

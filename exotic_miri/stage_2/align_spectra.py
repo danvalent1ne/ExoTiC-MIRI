@@ -17,7 +17,7 @@ class AlignSpectraStep(Step):
     draw_trace_positions = boolean(default=False)  # draw trace positions.
     """
 
-    def process(self, input, spec, spec_unc):
+    def process(self, input, spec, spec_unc, noise_pixel):
         """Execute the step.
         Parameters
         ----------
@@ -41,15 +41,17 @@ class AlignSpectraStep(Step):
         y_shifts = []
         aligned_spec = []
         aligned_spec_err = []
+        aligned_noise_pixel = []
         row_pixels = np.arange(spec.shape[1])
         spec_template = np.median(spec, axis=0)
-        for s, s_err in zip(spec, spec_unc):
+        for s, s_err, n_p in zip(spec, spec_unc, noise_pixel):
             y_shift = self.cross_correlator(
                 s, spec_template, trim_spec=3, high_res_factor=0.005, trim_fit=7)
             y_shifts.append(y_shift)
 
             if self.align_spectra:
                 shifted_pixels = row_pixels + y_shift
+
                 interp_function = interpolate.interp1d(
                     row_pixels, s, kind="linear", fill_value="extrapolate")
                 aligned_spec.append(interp_function(shifted_pixels))
@@ -57,12 +59,18 @@ class AlignSpectraStep(Step):
                 interp_function = interpolate.interp1d(
                     row_pixels, s_err, kind="linear", fill_value="extrapolate")
                 aligned_spec_err.append(interp_function(shifted_pixels))
+
+                interp_function = interpolate.interp1d(
+                    row_pixels, n_p, kind="linear", fill_value="extrapolate")
+                aligned_noise_pixel.append(interp_function(shifted_pixels))
             else:
                 aligned_spec.append(s)
                 aligned_spec_err.append(s_err)
+                aligned_noise_pixel.append(n_p)
 
         aligned_spec = np.array(aligned_spec)
         aligned_spec_err = np.array(aligned_spec_err)
+        aligned_noise_pixel = np.array(aligned_noise_pixel)
 
         # Find shifts in psf, cross-dispersion direction.
         # TODO: define high snr region better.
@@ -81,7 +89,7 @@ class AlignSpectraStep(Step):
         if self.draw_trace_positions:
             self._draw_trace_positions(x_shifts, y_shifts)
 
-        return aligned_spec, aligned_spec_err, x_shifts, y_shifts
+        return aligned_spec, aligned_spec_err, x_shifts, y_shifts, aligned_noise_pixel
 
     def cross_correlator(self, spec, template, trim_spec=3,
                          high_res_factor=0.01, trim_fit=10):
