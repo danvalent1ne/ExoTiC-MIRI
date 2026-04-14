@@ -122,7 +122,7 @@ class Extract1DBoxStep(Step):
         for int_idx, int_data in enumerate(data_cube):
 
             # Median stack rows. TODO: make wv dep.
-            median_row_data = np.median(int_data[200:390, 12:68], axis=0)
+            median_row_data = np.nanmedian(int_data[200:390, 12:68], axis=0)
             col_pixels = np.arange(12, 68, 1)
 
             try:

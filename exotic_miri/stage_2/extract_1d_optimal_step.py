@@ -107,7 +107,7 @@ class Extract1DOptimalStep(Step):
             # Extract.
             self.log.info("Optimal extraction in progress.")
             if self.median_spatial_profile:
-                P = np.median(P, axis=0)
+                P = np.nanmedian(P, axis=0)
                 P /= np.sum(P, axis=1)[:, np.newaxis]
                 P = np.broadcast_to(
                     P[np.newaxis, :, :], shape=extract_model.data.shape)
@@ -196,7 +196,7 @@ class Extract1DOptimalStep(Step):
         for int_idx, int_data in enumerate(data_cube):
 
             # Median stack rows. TODO: make wv dep.
-            median_row_data = np.median(int_data[200:390, 12:68], axis=0)
+            median_row_data = np.nanmedian(int_data[200:390, 12:68], axis=0)
             col_pixels = np.arange(12, 68, 1)
 
             try:

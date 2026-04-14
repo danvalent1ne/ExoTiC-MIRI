@@ -57,7 +57,7 @@ class AlignSpectraStep(Step):
         aligned_spec = []
         aligned_spec_err = []
         row_pixels = np.arange(spec.shape[1])
-        spec_template = np.median(spec, axis=0)
+        spec_template = np.nanmedian(spec, axis=0)
         for s, s_err in zip(spec, spec_unc):
             y_shift = self.cross_correlator(
                 s, spec_template, trim_spec=3, high_res_factor=0.005, trim_fit=7)
@@ -84,17 +84,19 @@ class AlignSpectraStep(Step):
         # TODO: wv dep shifts.
         x_shifts = []
         psfs = np.sum(rateimages_cube[:, 200:390, 12:68], axis=1)
-        psf_template = np.median(psfs, axis=0)
+        psf_template = np.nanmedian(psfs, axis=0)
         for p in psfs:
             x_shift = self.cross_correlator(
                 p, psf_template, trim_spec=3, high_res_factor=0.005, trim_fit=7)
             x_shifts.append(x_shift)
 
-        x_shifts = np.array(x_shifts)
+        x_shifts = np.array(x_shifts))
         y_shifts = np.array(y_shifts)
 
         if self.draw_trace_positions:
             self._draw_trace_positions(x_shifts, y_shifts)
+
+        print("TEST")
 
         return aligned_spec, aligned_spec_err, x_shifts, y_shifts
 
