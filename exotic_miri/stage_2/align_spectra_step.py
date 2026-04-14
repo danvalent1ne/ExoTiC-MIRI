@@ -96,6 +96,8 @@ class AlignSpectraStep(Step):
         if self.draw_trace_positions:
             self._draw_trace_positions(x_shifts, y_shifts)
 
+        print("TEST")
+
         return aligned_spec, aligned_spec_err, x_shifts, y_shifts
 
     def cross_correlator(self, spec, template, trim_spec=3,

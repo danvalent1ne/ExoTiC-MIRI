@@ -125,25 +125,25 @@ class Extract1DBoxStep(Step):
             median_row_data = np.nanmedian(int_data[200:390, 12:68], axis=0)
             col_pixels = np.arange(12, 68, 1)
 
-            # try:
-            popt, pcov = curve_fit(
-                self._amp_gaussian, col_pixels, median_row_data,
-                p0=[np.max(median_row_data), col_pixels[np.argmax(median_row_data)],
-                    sigma_guess, 0.], method="lm")
-            trace_position.append(popt[1])
-            trace_sigmas.append(popt[2])
-            if self.draw_psf_fits:
-                self._draw_gaussian_fit(col_pixels, median_row_data, popt, pcov)
-            # except ValueError as err:
-            #     self.log.warn("Gaussian fitting failed, nans present "
-            #                   "for integration={}.".format(int_idx))
-            #     trace_position.append(np.nan)
-            #     trace_sigmas.append(np.nan)
-            # except RuntimeError as err:
-            #     self.log.warn("Gaussian fitting failed to find optimal trace "
-            #                   "centre for integration={}.".format(int_idx))
-            #     trace_position.append(np.nan)
-            #     trace_sigmas.append(np.nan)
+            try:
+                popt, pcov = curve_fit(
+                    self._amp_gaussian, col_pixels, median_row_data,
+                    p0=[np.max(median_row_data), col_pixels[np.argmax(median_row_data)],
+                        sigma_guess, 0.], method="lm")
+                trace_position.append(popt[1])
+                trace_sigmas.append(popt[2])
+                if self.draw_psf_fits:
+                    self._draw_gaussian_fit(col_pixels, median_row_data, popt, pcov)
+            except ValueError as err:
+                self.log.warn("Gaussian fitting failed, nans present "
+                              "for integration={}.".format(int_idx))
+                trace_position.append(np.nan)
+                trace_sigmas.append(np.nan)
+            except RuntimeError as err:
+                self.log.warn("Gaussian fitting failed to find optimal trace "
+                              "centre for integration={}.".format(int_idx))
+                trace_position.append(np.nan)
+                trace_sigmas.append(np.nan)
 
         return np.array(trace_position), np.array(trace_sigmas)
 
