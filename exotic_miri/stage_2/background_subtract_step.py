@@ -132,7 +132,7 @@ class BackgroundSubtractStep(Step):
             end_row = min(n_rows - 1, idx_row + sm_radius)
 
             # Compute median in window.
-            sm_col_pixels[:, idx_row, :] = np.median(
+            sm_col_pixels[:, idx_row, :] = np.nanmedian(
                 col_pixels[:, start_row:end_row + 1, :], axis=1)
 
         return sm_col_pixels
