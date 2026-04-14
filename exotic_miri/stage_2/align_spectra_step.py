@@ -90,7 +90,7 @@ class AlignSpectraStep(Step):
                 p, psf_template, trim_spec=3, high_res_factor=0.005, trim_fit=7)
             x_shifts.append(x_shift)
 
-        x_shifts = np.array(x_shifts)
+        x_shifts = np.array(x_shifts))
         y_shifts = np.array(y_shifts)
 
         if self.draw_trace_positions:
